@@ -79,17 +79,40 @@ public class Controller {
 
     public void handleStart() {
         btnStart.setDisable(true);
+<<<<<<< HEAD
         imageView.setImage(null);
         listViewImages.getItems().clear();
         listViewScaledInstances.getItems().clear();
+=======
+        System.out.println("START");
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        //executorService.execute();
+
+        Runnable task2 = () -> System.out.println("Running task2...");
+>>>>>>> 0809fb688fadae9389d28997d8b0b836a0894074
 
         executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+<<<<<<< HEAD
         for(int i = 1; i < 10; i++) {
             executor.execute(() -> {
 
             });
         }
+=======
+        //run this task after 5 seconds, nonblock for task3
+        //ScheduledFuture<?> scheduledFuture = ses.scheduleAtFixedRate(task2, 5, 1, TimeUnit.SECONDS);
+
+        /*int i = 0;
+        while (true) {
+            i++;
+            if (i == 100) {
+                ses.shutdown();
+                break;
+            }
+        }*/
+    }
+>>>>>>> 0809fb688fadae9389d28997d8b0b836a0894074
 
         executor.shutdown();
         scheduledService.restart();
