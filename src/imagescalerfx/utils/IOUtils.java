@@ -1,5 +1,15 @@
 package imagescalerfx.utils;
 
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,17 +20,54 @@ import java.util.List;
  */
 public class IOUtils {
 
+    private static Image resize(Image input, int scaleFactorX, int scaleFactorY) {
+        int W = (int) input.getWidth();
+        int H = (int) input.getHeight();
+
+        WritableImage output = new WritableImage(
+                W * scaleFactorX,
+                H * scaleFactorY
+        );
+
+        PixelReader reader = input.getPixelReader();
+        PixelWriter writer = output.getPixelWriter();
+
+        for (int y = 0; y < H; y++) {
+            for (int x = 0; x < W; x++) {
+                final int argb = reader.getArgb(x, y);
+                for (int dy = 0; dy < scaleFactorY; dy++) {
+                    for (int dx = 0; dx < scaleFactorX; dx++) {
+                        writer.setArgb(x * scaleFactorX + dx, y * scaleFactorY + dy, argb);
+                    }
+                }
+            }
+        }
+
+        return output;
+    }
+
+    public static void saveToFile(Image image, String outputImagePath) {
+        File outputFile = new File(outputImagePath);
+        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+        try {
+            ImageIO.write(bImage, "png", outputFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * It takes the image located in inputImagePath and scales it to
      * scaledWidth x scaledHeight pixels, placing the new image in outputImagePath
      */
-    public static void resize(
+    private static void resize(
             String inputImagePath,
             String outputImagePath,
             int scaledWidth,
             int scaledHeight
     ) {
-
+        Image outputImage = resize(new Image(IOUtils.class.getResourceAsStream(inputImagePath)), scaledWidth, scaledHeight);
+        saveToFile(outputImage, outputImagePath);
     }
 
     /**
@@ -32,7 +79,10 @@ public class IOUtils {
             String outputImagePath,
             double percent
     ) {
-
+        Image inputImage = new Image(IOUtils.class.getResourceAsStream(inputImagePath));
+        int scaledW = (int)(percent * (int)inputImage.getWidth());
+        int scaledH = (int)(percent * (int)inputImage.getHeight());
+        resize(inputImagePath, outputImagePath, scaledW, scaledH);
     }
 
     /**
@@ -45,8 +95,6 @@ public class IOUtils {
 
     public static List<ImageData> loadMainImages() {
         List<ImageData> mainImages = new ArrayList<>();
-
-        
 
         return mainImages;
     }

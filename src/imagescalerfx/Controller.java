@@ -35,23 +35,23 @@ public class Controller {
         btnStart.setDisable(true);
         System.out.println("START");
         ExecutorService executorService = Executors.newCachedThreadPool();
-        executorService.execute();
+        //executorService.execute();
 
         Runnable task2 = () -> System.out.println("Running task2...");
 
         System.out.println("OK");
 
         //run this task after 5 seconds, nonblock for task3
-        ScheduledFuture<?> scheduledFuture = ses.scheduleAtFixedRate(task2, 5, 1, TimeUnit.SECONDS);
+        //ScheduledFuture<?> scheduledFuture = ses.scheduleAtFixedRate(task2, 5, 1, TimeUnit.SECONDS);
 
-        int i = 0;
+        /*int i = 0;
         while (true) {
             i++;
             if (i == 100) {
                 ses.shutdown();
                 break;
             }
-        }
+        }*/
     }
 
     private void test() {
