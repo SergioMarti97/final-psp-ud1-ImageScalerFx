@@ -29,8 +29,7 @@ public class ImageData {
 
     @Override
     public String toString() {
-        return "fileName='" + fileName + '\'' +
-                ", path='" + path + '\'';
+        return fileName;
     }
 
 }

@@ -1,6 +1,8 @@
 package imagescalerfx.utils;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class is for needed to get the information from the images to be processed,
@@ -39,6 +41,14 @@ public class IOUtils {
      */
     public static void deleteDirectory(Path path) {
 
+    }
+
+    public static List<ImageData> loadMainImages() {
+        List<ImageData> mainImages = new ArrayList<>();
+
+        
+
+        return mainImages;
     }
 
 }
