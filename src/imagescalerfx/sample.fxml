@@ -31,7 +31,7 @@
       </VBox>
    </left>
    <bottom>
-      <Label fx:id="labelStatus" alignment="CENTER" text="Task" BorderPane.alignment="TOP_LEFT" />
+      <Label fx:id="labelStatus" alignment="CENTER" text="0 of 0 tasks finished" BorderPane.alignment="TOP_LEFT" />
    </bottom>
    <right>
       <VBox prefWidth="150.0" BorderPane.alignment="CENTER">

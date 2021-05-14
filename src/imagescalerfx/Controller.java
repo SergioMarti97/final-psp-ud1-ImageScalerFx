@@ -1,13 +1,19 @@
 package imagescalerfx;
 
+import imagescalerfx.utils.IOUtils;
 import imagescalerfx.utils.ImageData;
+import javafx.application.Platform;
+import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Controller {
 
@@ -26,36 +32,67 @@ public class Controller {
     @FXML
     private ImageView imageView;
 
+    private ScheduledService<Boolean> scheduledService;
+
+    private ThreadPoolExecutor executor;
+
     @FXML
     public void initialize() {
-
+        setScheduleService();
+        listViewImages.getItems().addAll(IOUtils.loadMainImages());
+        setSelectionImageScaled();
     }
 
-    public void handleStart() throws InterruptedException {
-        btnStart.setDisable(true);
-        System.out.println("START");
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        executorService.execute();
-
-        Runnable task2 = () -> System.out.println("Running task2...");
-
-        System.out.println("OK");
-
-        //run this task after 5 seconds, nonblock for task3
-        ScheduledFuture<?> scheduledFuture = ses.scheduleAtFixedRate(task2, 5, 1, TimeUnit.SECONDS);
-
-        int i = 0;
-        while (true) {
-            i++;
-            if (i == 100) {
-                ses.shutdown();
-                break;
+    private void setScheduleService() {
+        scheduledService = new ScheduledService<>() {
+            @Override
+            protected Task<Boolean> createTask() {
+                return new Task<>() {
+                    @Override
+                    protected Boolean call() {
+                        Platform.runLater(() -> {
+                            labelStatus.setText(executor.getCompletedTaskCount() + " of " + executor.getTaskCount() + " tasks finished");
+                        });
+                        return executor.isTerminated();
+                    }
+                };
             }
-        }
+        };
+
+        scheduledService.setDelay(Duration.millis(500));
+        scheduledService.setPeriod(Duration.seconds(1));
+        scheduledService.setOnSucceeded(e -> {
+            if (scheduledService.getValue()) {
+                scheduledService.cancel();
+                btnStart.setDisable(false);
+            }
+        });
     }
 
-    private void test() {
-        System.out.println("OKAY");
+    private void setSelectionImageScaled() {
+        listViewImages.getSelectionModel().selectedItemProperty()
+                .addListener((observableValue, lastImage, currentImage) -> {
+                    listViewScaledInstances.getItems().clear();
+                    listViewScaledInstances.getItems().addAll(IOUtils.loadChildImages(currentImage));
+                });
+    }
+
+    public void handleStart() {
+        btnStart.setDisable(true);
+        imageView.setImage(null);
+        listViewImages.getItems().clear();
+        listViewScaledInstances.getItems().clear();
+
+        executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        for(int i = 1; i < 10; i++) {
+            executor.execute(() -> {
+
+            });
+        }
+
+        executor.shutdown();
+        scheduledService.restart();
     }
 
 }
