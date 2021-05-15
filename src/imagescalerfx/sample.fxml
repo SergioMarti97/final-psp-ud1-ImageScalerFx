@@ -20,7 +20,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" />
             <RowConstraints />
          </rowConstraints>
-         <ImageView fx:id="imageView" fitHeight="250.0" fitWidth="300.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" />
+         <ImageView fx:id="imageView" fitHeight="170.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1" />
          <Button fx:id="btnStart" mnemonicParsing="false" onAction="#handleStart" text="Start" />
       </GridPane>
    </center>

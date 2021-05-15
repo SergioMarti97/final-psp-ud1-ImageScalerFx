@@ -7,10 +7,15 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,42 +24,6 @@ import java.util.List;
  * and scale the images to different sizes.
  */
 public class IOUtils {
-
-    private static Image resize(Image input, int scaleFactorX, int scaleFactorY) {
-        int W = (int) input.getWidth();
-        int H = (int) input.getHeight();
-
-        WritableImage output = new WritableImage(
-                W * scaleFactorX,
-                H * scaleFactorY
-        );
-
-        PixelReader reader = input.getPixelReader();
-        PixelWriter writer = output.getPixelWriter();
-
-        for (int y = 0; y < H; y++) {
-            for (int x = 0; x < W; x++) {
-                final int argb = reader.getArgb(x, y);
-                for (int dy = 0; dy < scaleFactorY; dy++) {
-                    for (int dx = 0; dx < scaleFactorX; dx++) {
-                        writer.setArgb(x * scaleFactorX + dx, y * scaleFactorY + dy, argb);
-                    }
-                }
-            }
-        }
-
-        return output;
-    }
-
-    public static void saveToFile(Image image, String outputImagePath) {
-        File outputFile = new File(outputImagePath);
-        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-        try {
-            ImageIO.write(bImage, "png", outputFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * It takes the image located in inputImagePath and scales it to
@@ -65,9 +34,19 @@ public class IOUtils {
             String outputImagePath,
             int scaledWidth,
             int scaledHeight
-    ) {
-        Image outputImage = resize(new Image(IOUtils.class.getResourceAsStream(inputImagePath)), scaledWidth, scaledHeight);
-        saveToFile(outputImage, outputImagePath);
+    ) throws IOException {
+        File inputFile = new File(inputImagePath);
+        BufferedImage inputImage = ImageIO.read(inputFile);
+
+        BufferedImage outputImage = new BufferedImage(scaledWidth, scaledHeight, inputImage.getType());
+
+        Graphics2D g2d = outputImage.createGraphics();
+        g2d.drawImage(inputImage, 0, 0, scaledWidth, scaledHeight, null);
+        g2d.dispose();
+
+        String formatName = outputImagePath.substring(outputImagePath.lastIndexOf(".") + 1);
+
+        ImageIO.write(outputImage, formatName, new File(outputImagePath));
     }
 
     /**
@@ -78,19 +57,32 @@ public class IOUtils {
             String inputImagePath,
             String outputImagePath,
             double percent
-    ) {
-        Image inputImage = new Image(IOUtils.class.getResourceAsStream(inputImagePath));
-        int scaledW = (int)(percent * (int)inputImage.getWidth());
-        int scaledH = (int)(percent * (int)inputImage.getHeight());
-        resize(inputImagePath, outputImagePath, scaledW, scaledH);
+    ) throws IOException {
+        File inputFile = new File(inputImagePath);
+        BufferedImage inputImage = ImageIO.read(inputFile);
+        int scaledWidth = (int) (inputImage.getWidth() * percent);
+        int scaledHeight = (int) (inputImage.getHeight() * percent);
+        resize(inputImagePath, outputImagePath, scaledWidth, scaledHeight);
     }
 
     /**
      * recursively deletes the directory referenced by
      * the given path, including every files and folders that it may have.
      */
-    public static void deleteDirectory(Path path) {
+    public static void deleteDirectory(Path path) throws IOException {
+        Files.walkFileTree(path, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
 
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     private static List<ImageData> loadImages(File folder) {

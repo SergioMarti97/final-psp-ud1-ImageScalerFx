@@ -9,9 +9,16 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -40,7 +47,7 @@ public class Controller {
     public void initialize() {
         setScheduleService();
         listViewImages.getItems().addAll(IOUtils.loadMainImages());
-        setSelectionImageScaled();
+        setSelectionImages();
     }
 
     private void setScheduleService() {
@@ -69,50 +76,65 @@ public class Controller {
         });
     }
 
-    private void setSelectionImageScaled() {
+    private void setSelectionImages() {
         listViewImages.getSelectionModel().selectedItemProperty()
                 .addListener((observableValue, lastImage, currentImage) -> {
                     listViewScaledInstances.getItems().clear();
                     listViewScaledInstances.getItems().addAll(IOUtils.loadChildImages(currentImage));
                 });
+
+        listViewScaledInstances.getSelectionModel().selectedItemProperty()
+                .addListener((observableValue, lastImage, currentImage) -> {
+                    if (currentImage == null) {
+                        return;
+                    }
+                    try {
+                        imageView.setImage(new Image(new FileInputStream(currentImage.getPath())));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     public void handleStart() {
         btnStart.setDisable(true);
-<<<<<<< HEAD
         imageView.setImage(null);
         listViewImages.getItems().clear();
         listViewScaledInstances.getItems().clear();
-=======
-        System.out.println("START");
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        //executorService.execute();
-
-        Runnable task2 = () -> System.out.println("Running task2...");
->>>>>>> 0809fb688fadae9389d28997d8b0b836a0894074
 
         executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-<<<<<<< HEAD
-        for(int i = 1; i < 10; i++) {
+        for (ImageData imageData : IOUtils.loadMainImages()) {
             executor.execute(() -> {
+                String imageFolderName = imageData.getFileName().split("\\.")[0];
+                Path path = Path.of(System.getProperty("user.dir") + File.separator + "images" + File.separator + imageFolderName);
+                if (Files.isDirectory(path)) {
+                    try {
+                        IOUtils.deleteDirectory(path);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
 
+                try {
+                    Files.createDirectory(path);
+                    for (int i = 1; i < 10; i++) {
+                        int percent = i * 10;
+                        String imageName = percent + "_" + imageData.getFileName();
+                        String pathImage = path.toString() + File.separator + imageName;
+                        try {
+                            IOUtils.resize(imageData.getPath(), pathImage, percent / 100.0);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Platform.runLater(() -> listViewImages.getItems().add(imageData));
             });
         }
-=======
-        //run this task after 5 seconds, nonblock for task3
-        //ScheduledFuture<?> scheduledFuture = ses.scheduleAtFixedRate(task2, 5, 1, TimeUnit.SECONDS);
-
-        /*int i = 0;
-        while (true) {
-            i++;
-            if (i == 100) {
-                ses.shutdown();
-                break;
-            }
-        }*/
-    }
->>>>>>> 0809fb688fadae9389d28997d8b0b836a0894074
 
         executor.shutdown();
         scheduledService.restart();
