@@ -17,8 +17,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -54,7 +52,11 @@ public class Controller {
         scheduledService = new ScheduledService<Boolean>() {
             @Override
             protected Task<Boolean> createTask() {
+<<<<<<< HEAD
                 return new Task() {
+=======
+                return new Task<Boolean>() {
+>>>>>>> 70f4a657dc9e349136d4432d8cc7180816b9462f
                     @Override
                     protected Boolean call() {
                         Platform.runLater(() -> {
@@ -107,21 +109,17 @@ public class Controller {
         for (ImageData imageData : IOUtils.loadMainImages()) {
             executor.execute(() -> {
                 String imageFolderName = imageData.getFileName().split("\\.")[0];
-                Path path = Path.of(System.getProperty("user.dir") + File.separator + "images" + File.separator + imageFolderName);
-                if (Files.isDirectory(path)) {
-                    try {
-                        IOUtils.deleteDirectory(path);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                File file = new File(System.getProperty("user.dir") + File.separator + "images" + File.separator + imageFolderName);
+                if (file.isDirectory()) {
+                    file.delete();
                 }
 
                 try {
-                    Files.createDirectory(path);
+                    file.createNewFile();
                     for (int i = 1; i < 10; i++) {
                         int percent = i * 10;
                         String imageName = percent + "_" + imageData.getFileName();
-                        String pathImage = path.toString() + File.separator + imageName;
+                        String pathImage = file.getPath() + File.separator + imageName;
                         try {
                             IOUtils.resize(imageData.getPath(), pathImage, percent / 100.0);
                         } catch (IOException e) {
