@@ -110,20 +110,16 @@ public class Controller {
                     file.delete();
                 }
 
-                try {
-                    file.createNewFile();
-                    for (int i = 1; i < 10; i++) {
-                        int percent = i * 10;
-                        String imageName = percent + "_" + imageData.getFileName();
-                        String pathImage = file.getPath() + File.separator + imageName;
-                        try {
-                            IOUtils.resize(imageData.getPath(), pathImage, percent / 100.0);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                file.mkdir();
+                for (int i = 1; i < 10; i++) {
+                    int percent = i * 10;
+                    String imageName = percent + "_" + imageData.getFileName();
+                    String pathImage = file.getPath() + File.separator + imageName;
+                    try {
+                        IOUtils.resize(imageData.getPath(), pathImage, percent / 100.0);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
 
                 Platform.runLater(() -> listViewImages.getItems().add(imageData));
