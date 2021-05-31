@@ -51,10 +51,10 @@ public class Controller {
     }
 
     private void setScheduleService() {
-        scheduledService = new ScheduledService<>() {
+        scheduledService = new ScheduledService<Boolean>() {
             @Override
             protected Task<Boolean> createTask() {
-                return new Task<>() {
+                return new Task() {
                     @Override
                     protected Boolean call() {
                         Platform.runLater(() -> {

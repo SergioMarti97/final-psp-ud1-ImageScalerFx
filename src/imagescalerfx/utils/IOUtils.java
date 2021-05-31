@@ -70,7 +70,7 @@ public class IOUtils {
      * the given path, including every files and folders that it may have.
      */
     public static void deleteDirectory(Path path) throws IOException {
-        Files.walkFileTree(path, new SimpleFileVisitor<>() {
+        /*Files.walkFileTree(path, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
@@ -82,7 +82,7 @@ public class IOUtils {
                 Files.delete(dir);
                 return FileVisitResult.CONTINUE;
             }
-        });
+        });*/
     }
 
     private static List<ImageData> loadImages(File folder) {
