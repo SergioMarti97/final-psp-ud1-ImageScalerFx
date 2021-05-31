@@ -1,11 +1,5 @@
 package imagescalerfx.utils;
 
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -70,7 +64,7 @@ public class IOUtils {
      * the given path, including every files and folders that it may have.
      */
     public static void deleteDirectory(Path path) throws IOException {
-        Files.walkFileTree(path, new SimpleFileVisitor<>() {
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 Files.delete(file);
